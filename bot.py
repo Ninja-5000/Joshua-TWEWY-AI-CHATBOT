@@ -75,7 +75,7 @@ def query(prompt, waitformodel=False, context=[], user=discord.User):
             else:
                 return response
     else:
-        for i in range(3):
+        for i in range(4):
             response = requests.post(
                 API_URL, 
                 headers = {
@@ -89,7 +89,7 @@ def query(prompt, waitformodel=False, context=[], user=discord.User):
                 print("Error 429 received. Backing off...")
                 time.sleep(backoff)
                 backoff *= 2
-            else:
+            elif response != "" or i == 4:
                 return response
     return f"ERROR"
 
