@@ -52,11 +52,10 @@ def UpdateChannels():
     except:
         pass
 
-def query(prompt, waitformodel=False):
+def query(prompt, waitformodel=False, context=[], user=discord.User):
     """
     Get the response from the Hugging Face API
     """
-
     payload = {'inputs': f'You say: {prompt}\nI reply:'}
     backoff = 3
     if not waitformodel:
@@ -76,7 +75,7 @@ def query(prompt, waitformodel=False):
             else:
                 return response
     else:
-        for i in range(3):
+        for i in range(4):
             response = requests.post(
                 API_URL, 
                 headers = {
@@ -90,7 +89,7 @@ def query(prompt, waitformodel=False):
                 print("Error 429 received. Backing off...")
                 time.sleep(backoff)
                 backoff *= 2
-            else:
+            elif response != "" or i == 4:
                 return response
     return f"ERROR"
 
@@ -168,6 +167,8 @@ async def unset(ctx):
 async def on_message(message):
     if message.content.startswith(bot.command_prefix):
         await bot.process_commands(message)
+        return
+    if message.content.startswith("//"):
         return
     if (not bot.user.mentioned_in(message) and 
         not str(message.channel.id) in channels and 
@@ -283,6 +284,7 @@ async def on_message(message):
                 fields=None
             )
         )
+        return
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
